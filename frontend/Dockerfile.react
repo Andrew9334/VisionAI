@@ -1,0 +1,26 @@
+# Используем Node.js для сборки
+FROM node:18 AS build
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем package.json и package-lock.json перед установкой зависимостей
+COPY frontend/package*.json ./
+
+# Устанавливаем зависимости
+RUN npm install
+
+# Копируем весь код проекта
+COPY frontend ./
+
+# Собираем проект
+RUN npm run build
+
+# Используем Nginx для раздачи фронта
+FROM nginx:stable-alpine
+
+# Копируем собранные файлы React в папку Nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Запускаем Nginx
+CMD ["nginx", "-g", "daemon off;"]

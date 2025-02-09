@@ -1,0 +1,11 @@
+flask
+torch
+torchvision
+ultralytics
+tensorflow
+keras
+open_clip_torch
+flask_cors
+requests
+git+https://github.com/openai/CLIP.git
+flask-jwt-extended

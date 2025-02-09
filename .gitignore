@@ -1,0 +1,4 @@
+echo "models/*.pt" >> .gitignore
+echo "models/*.h5" >> .gitignore
+echo "models/*.keras" >> .gitignore
+echo "frontend/node_modules/" >> .gitignore

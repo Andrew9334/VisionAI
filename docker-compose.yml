@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  yolo:
+    build:
+      context: .
+      dockerfile: services/Dockerfile.yolo
+    volumes:
+      - ./models:/app/models
+    ports:
+      - "5001:5000"
+    networks:
+      - backend
+
+  tensorflow:
+    build:
+      context: .
+      dockerfile: services/Dockerfile.tf
+    volumes:
+      - ./models:/app/models
+    ports:
+      - "5002:5000"
+    networks:
+      - backend
+
+  clip:
+    build:
+      context: .
+      dockerfile: services/Dockerfile.clip
+    volumes:
+      - ./models:/app/models
+    ports:
+      - "5003:5000"
+    networks:
+      - backend
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile.app
+    depends_on:
+      - yolo
+      - tensorflow
+      - clip
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.react
+    environment:
+      - REACT_APP_API_URL=http://app:5000
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

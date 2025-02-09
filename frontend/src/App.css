@@ -1,0 +1,135 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #74ebd5, #acb6e5);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Стили для ссылки "Зарегистрироваться" */
+.register-link {
+    display: block;
+    margin-top: 10px;
+    padding: 10px;
+    text-align: center;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.register-link:hover {
+    background-color: #5a6268;
+}
+
+.upload-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.switch-group {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.file-upload {
+    margin-bottom: 15px;
+}
+
+.upload-button {
+    width: 100%;
+}
+
+.result-card {
+    text-align: left;
+}
+
+.final-class {
+    font-weight: bold;
+    font-size: 20px;
+    color: #1976d2;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #dfe9f3, #f8d7da);
+}
+
+.auth-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+html, body {
+    height: auto; /* Автоматическая высота, убираем жесткое 100% */
+    margin: 0;
+    padding: 0;
+    overflow-y: auto; /* Только один скролл */
+    overflow-x: hidden; /* Убираем горизонтальный скролл */
+    display: block; /* Отключаем flex */
+}
+
+#root {
+    min-height: 100vh; /* Минимальная высота вместо фиксированной */
+    display: block; /* Убираем flex, чтобы не центрировало */
+}
+
+
+
