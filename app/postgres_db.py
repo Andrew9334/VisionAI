@@ -2,7 +2,7 @@ import psycopg2
 import logging
 from psycopg2.extras import execute_values
 
-# Настраиваем логирование
+# Настройка логирования
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class PostgresDB:
@@ -30,7 +30,13 @@ class PostgresDB:
             return conn
         except psycopg2.Error as e:
             logging.error(f"❌ Ошибка подключения к PostgreSQL: {e}")
-            return None
+            raise RuntimeError("Не удалось подключиться к БД")
+
+    def check_connection(self):
+        """Проверяет активность соединения и переподключается при необходимости"""
+        if self.conn is None or self.conn.closed:
+            logging.warning("⚠️ Потеряно соединение с БД, пробуем переподключиться...")
+            self.conn = self.__connect()
 
     def create_table(self, schema):
         """Создает таблицу по схеме (если её нет)"""
@@ -45,6 +51,10 @@ class PostgresDB:
 
         # Формируем SQL для колонок
         columns_sql = ", ".join([f"{col} {dtype}" for col, dtype in columns.items()])
+
+        # Добавляем PRIMARY KEY, если есть поле 'id'
+        if "id" in columns:
+            columns_sql = f"id SERIAL PRIMARY KEY, {columns_sql}"
 
         # Формируем SQL для внешних ключей
         fk_sql = ", ".join([
@@ -64,6 +74,7 @@ class PostgresDB:
         """
 
         try:
+            self.check_connection()
             with self.conn as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(create_query)
@@ -78,6 +89,7 @@ class PostgresDB:
             return
 
         try:
+            self.check_connection()
             with self.conn as conn:
                 with conn.cursor() as cursor:
                     for index in indexes:
@@ -90,6 +102,7 @@ class PostgresDB:
     def check_table_exists(self, table_name):
         """Проверяет, существует ли таблица в базе данных"""
         try:
+            self.check_connection()
             with self.conn as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(f"SELECT EXISTS (SELECT FROM pg_tables WHERE tablename = %s);", (table_name,))
@@ -119,31 +132,35 @@ class PostgresDB:
         """
 
         try:
+            self.check_connection()
             with self.conn as conn:
                 with conn.cursor() as cursor:
                     execute_values(cursor, insert_query, values)
-                    logging.info(f"✅ Вставлено/обновлено {len(data)} строк в '{table_name}'.")
+                conn.commit()
+                logging.info(f"✅ Вставлено/обновлено {len(data)} строк в '{table_name}'.")
         except Exception as e:
+            conn.rollback()
             logging.error(f"❌ Ошибка при вставке данных в '{table_name}': {e}")
 
     def read_from_db(self, table_name, columns=None):
         """Читает данные из таблицы"""
         if not self.check_table_exists(table_name):
             logging.warning(f"⚠️ Таблица '{table_name}' не существует.")
-            return None
+            return []
 
         columns_sql = ", ".join(columns) if columns else "*"
         query = f"SELECT {columns_sql} FROM {table_name};"
 
         try:
+            self.check_connection()
             with self.conn as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(query)
                     rows = cursor.fetchall()
-                    return rows
+                    return rows if rows else []
         except Exception as e:
             logging.error(f"❌ Ошибка при чтении данных из '{table_name}': {e}")
-            return None
+            return []
 
     def delete_from_db(self, table_name, condition):
         """Удаляет данные из таблицы по условию"""
@@ -154,11 +171,14 @@ class PostgresDB:
         query = f"DELETE FROM {table_name} WHERE {condition};"
 
         try:
+            self.check_connection()
             with self.conn as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(query)
+                    conn.commit()
                     logging.info(f"✅ Записи из '{table_name}' удалены по условию: {condition}.")
         except Exception as e:
+            conn.rollback()
             logging.error(f"❌ Ошибка при удалении данных из '{table_name}': {e}")
 
     def close_connection(self):
