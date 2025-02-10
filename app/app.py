@@ -12,7 +12,7 @@ SERVICES_DIR = os.path.join(PROJECT_DIR, "services")
 
 sys.path.append(SERVICES_DIR)
 
-from tf_predict import predict_single_image  
+from tf_predict import predict_single_image 
 from clip_predict import CLIPpredictor       
 from yolo_predict import predict_image       
 
