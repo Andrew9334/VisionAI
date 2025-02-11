@@ -5,13 +5,13 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Копируем package.json и package-lock.json перед установкой зависимостей
-COPY frontend/package*.json ./
+COPY package*.json ./
 
 # Устанавливаем зависимости
 RUN npm install
 
 # Копируем весь код проекта
-COPY frontend ./
+COPY . ./
 
 # Собираем проект
 RUN npm run build
