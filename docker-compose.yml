@@ -1,16 +1,33 @@
+version: "3.8"
+
 services:
+  yolo:
+    build: ./yolo
+    ports:
+      - "5001:5001"
+    restart: always
+
+  tensorflow:
+    build: ./tensorflow
+    ports:
+      - "5002:5002"
+    restart: always
+
+  clip:
+    build: ./clip
+    ports:
+      - "5003:5003"
+    restart: always
+
   app:
-    build:
-      context: .
-      dockerfile: app/Dockerfile.app
-    environment:
-      - YOLO_URL=http://yolo:5001
-      - TENSORFLOW_URL=http://tensorflow:5002
-      - CLIP_URL=http://clip:5003
+    build: ./app
     ports:
       - "5000:5000"
-    networks:
-      - backend  # 🔹 Сеть "backend"
+    depends_on:
+      - yolo
+      - tensorflow
+      - clip
+    restart: always
 
   frontend:
     build:

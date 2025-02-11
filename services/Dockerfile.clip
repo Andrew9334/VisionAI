@@ -1,0 +1,24 @@
+# Используем минимальный Python-образ для экономии места
+FROM python:3.11-slim
+
+# Устанавливаем переменную окружения для отключения кеша pip
+ENV PIP_NO_CACHE_DIR=1
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Устанавливаем git, чтобы можно было скачивать пакеты из репозиториев
+RUN apt-get update && apt-get install -y git
+
+# Копируем только requirements.txt (для кеширования слоев)
+COPY requirements.txt .
+
+# Устанавливаем зависимости в одном слое
+RUN pip install --no-cache-dir -r requirements.txt && rm -rf /root/.cache/pip
+
+# Копируем файлы модели и сам код (после установки зависимостей для максимального кеширования)
+COPY services/clip_predict.py .
+COPY models/model_weights.weights.h5 /app/models/
+
+# Запуск CLIP модели
+CMD ["python", "clip_predict.py"]

@@ -1,0 +1,30 @@
+# Используем минимальный Python-образ
+FROM python:3.11-slim
+
+# Устанавливаем переменную окружения для отключения кеша pip
+ENV PIP_NO_CACHE_DIR=1
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Установка Git перед установкой зависимостей
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Установка зависимостей
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копируем только requirements.txt (для кеширования слоев)
+COPY requirements.txt .
+
+# Устанавливаем зависимости в одном слое и сразу очищаем кеш
+RUN pip install --no-cache-dir -r requirements.txt && rm -rf /root/.cache/pip
+
+# Копируем файлы модели и код (после установки зависимостей для максимального кеширования)
+COPY services/yolo_predict.py .
+COPY models/best_real_estate.pt /app/models/
+
+# Запуск YOLO модели
+CMD ["python", "yolo_predict.py"]
